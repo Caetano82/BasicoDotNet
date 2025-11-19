@@ -51,18 +51,35 @@ Para que a pipeline funcione corretamente, você precisa configurar um **Service
 4. Escolha **Azure Container Registry**
 5. Configure:
    - **Subscription**: Selecione a subscription do Azure
-   - **Azure container registry**: Selecione `unewsistemas` ou digite `unewsistemas.azurecr.io`
-   - **Service connection name**: `unewsistemas-acr-service-connection` (ou o nome que você preferir, mas precisa atualizar no `azure-pipelines.yml`)
+   - **Azure container registry**: Selecione `unewsistemas` ou digite `unewsistemas.azurecr.io` (esta é a URL do ACR)
+   - **Service connection name**: `unewsistemas-acr-service-connection` ⚠️ **Este é um nome que você escolhe**, pode ser qualquer nome (ex: `acr-connection`, `docker-registry`, etc.)
+     - Este nome será usado na variável `dockerRegistryServiceConnection` nas pipelines
+     - **IMPORTANTE**: Este nome **NÃO é** a URL `unewsistemas.azurecr.io`, é apenas um identificador do Service Connection
 6. Clique em **Save**
 
-### Passo 2: Verificar o nome do Service Connection
+### Passo 2: Entender a diferença entre Service Connection e Registry URL
 
-O nome do Service Connection configurado nas pipelines é:
+⚠️ **IMPORTANTE - Diferença entre os valores:**
+
+1. **`dockerRegistryServiceConnection`**: É o **nome** do Service Connection que você criou no Azure DevOps (ex: `unewsistemas-acr-service-connection`)
+   - Este é um **identificador** que você escolhe ao criar o Service Connection
+   - Pode ser qualquer nome (ex: `acr-connection`, `my-docker-registry`, etc.)
+   - Este nome deve ser **igual** ao "Service connection name" que você digitou no Passo 1
+
+2. **`containerRegistry`**: É a **URL** do Azure Container Registry (ex: `unewsistemas.azurecr.io`)
+   - Este é o **endereço real** do seu ACR no Azure
+   - Já está configurado corretamente nas pipelines: `unewsistemas.azurecr.io`
+
+**Exemplo:**
 ```yaml
+# Nome do Service Connection (você escolhe ao criar no Azure DevOps)
 dockerRegistryServiceConnection: 'unewsistemas-acr-service-connection'
+
+# URL do Azure Container Registry (endereço real do ACR)
+containerRegistry: 'unewsistemas.azurecr.io'
 ```
 
-**Importante**: Se você usou um nome diferente ao criar o Service Connection, atualize a variável `dockerRegistryServiceConnection` nos arquivos:
+**Se você usou um nome diferente ao criar o Service Connection**, atualize a variável `dockerRegistryServiceConnection` nos arquivos:
 - `azure-pipelines-backend.yml`
 - `azure-pipelines-frontend.yml`
 

@@ -19,9 +19,9 @@ resources:
   - repo: self
 
 variables:
-  # Nome do Service Connection criado no Azure DevOps (você escolhe o nome ao criar)
-  # Este NÃO é a URL do registry, é apenas um identificador do Service Connection
-  dockerRegistryServiceConnection: 'unewsistemas-acr-service-connection'
+  # Nome do Service Connection criado no Azure DevOps
+  # ID do Service Connection: 9375e1a3-0899-4197-b6e6-857da1df01d7
+  dockerRegistryServiceConnection: 'conectaazure'
   # URL do Azure Container Registry (este é o valor correto: unewsistemas.azurecr.io)
   containerRegistry: 'unewsistemas.azurecr.io'
   backendImageRepository: 'bernhoeft-api'

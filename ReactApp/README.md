@@ -1,20 +1,60 @@
-# Introduction 
-TODO: Give a short introduction of your project. Let this section explain the objectives or the motivation behind this project. 
 
-# Getting Started
-TODO: Guide users through getting your code up and running on their own system. In this section you can talk about:
-1.	Installation process
-2.	Software dependencies
-3.	Latest releases
-4.	API references
+# 🚀 Guia de Instalação Rápida
 
-# Build and Test
-TODO: Describe and show how to build your code and run the tests. 
+## Passo a Passo
 
-# Contribute
-TODO: Explain how other users and developers can contribute to make your code better. 
+### 1. Instalar Dependências
+```bash
+cd ReactApp
+npm install
+```
 
-If you want to learn more about creating good readme files then refer the following [guidelines](https://docs.microsoft.com/en-us/azure/devops/repos/git/create-a-readme?view=azure-devops). You can also seek inspiration from the below readme files:
-- [ASP.NET Core](https://github.com/aspnet/Home)
-- [Visual Studio Code](https://github.com/Microsoft/vscode)
-- [Chakra Core](https://github.com/Microsoft/ChakraCore)
+### 2. Configurar URL da API
+
+Crie um arquivo `.env` na pasta `ReactApp` com o seguinte conteúdo:
+```
+REACT_APP_API_URL=https://localhost:5001/api/v1
+```
+
+Ou se sua API estiver em outro endereço, ajuste conforme necessário.
+
+### 3. Iniciar a Aplicação
+```bash
+npm start
+```
+
+A aplicação abrirá automaticamente em `http://localhost:3000`
+
+## ⚠️ Importante
+
+### Certificado SSL Auto-assinado
+
+Se sua API usa HTTPS com certificado auto-assinado (como `https://localhost:5001`):
+
+1. **Primeira vez**: Acesse `https://localhost:5001` diretamente no navegador
+2. Aceite o aviso de segurança do navegador
+3. Depois disso, a aplicação React conseguirá fazer as requisições
+
+### Alternativa: Usar HTTP
+
+Se preferir, você pode configurar sua API para usar HTTP em desenvolvimento e ajustar a URL no `.env`:
+```
+REACT_APP_API_URL=http://localhost:5000/api/v1
+```
+
+## 🎯 Testando
+
+1. Certifique-se de que a API está rodando
+2. Abra `http://localhost:3000`
+3. Clique em "+ Novo Aviso" para criar seu primeiro post-it
+4. Os avisos aparecerão como post-its coloridos no board!
+
+## 🐛 Problemas Comuns
+
+### Erro de CORS
+Se aparecer erro de CORS, verifique se a API está configurada para aceitar requisições do `http://localhost:3000`
+
+### Erro de Conexão
+- Verifique se a API está rodando
+- Verifique se a URL no `.env` está correta
+- Verifique se aceitou o certificado SSL (se usar HTTPS)

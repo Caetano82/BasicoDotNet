@@ -2,9 +2,6 @@
 FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
 WORKDIR /src
 
-# Copiar arquivo da solução primeiro
-COPY ["Bernhoeft.GRT.Teste.sln", "./"]
-
 # Copiar arquivos .csproj para restaurar dependências (camadas de cache)
 COPY ["1-Presentation/Bernhoeft.GRT.Teste.Api/Bernhoeft.GRT.Teste.Api.csproj", "1-Presentation/Bernhoeft.GRT.Teste.Api/"]
 COPY ["2-Application/Bernhoeft.GRT.Teste.Application/Bernhoeft.GRT.Teste.Application.csproj", "2-Application/Bernhoeft.GRT.Teste.Application/"]
@@ -14,8 +11,8 @@ COPY ["4-Infra/Bernhoeft.GRT.Teste.Infra.Persistence.InMemory/Bernhoeft.GRT.Test
 # Copiar DLLs de referência (copiar diretório inteiro)
 COPY ["Libs/", "Libs/"]
 
-# Restaurar dependências NuGet
-RUN dotnet restore "Bernhoeft.GRT.Teste.sln"
+# Restaurar dependências NuGet (apenas projetos necessários, sem a solução que inclui testes)
+RUN dotnet restore "1-Presentation/Bernhoeft.GRT.Teste.Api/Bernhoeft.GRT.Teste.Api.csproj"
 
 # Copiar todo o código fonte
 COPY . .

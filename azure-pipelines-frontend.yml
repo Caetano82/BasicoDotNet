@@ -16,11 +16,12 @@ resources:
   - repo: self
 
 variables:
-  # Nome do Service Connection criado no Azure DevOps
+  # Nome do Service Connection AzureRM criado no Azure DevOps
   # ID do Service Connection: 9375e1a3-0899-4197-b6e6-857da1df01d7
-  dockerRegistryServiceConnection: 'conectaazure'
-  # URL do Azure Container Registry (este é o valor correto: unewsistemas.azurecr.io)
+  azureSubscription: 'conectaazure'
+  # URL do Azure Container Registry
   containerRegistry: 'unewsistemas.azurecr.io'
+  acrName: 'unewsistemas'
   frontendImageRepository: 'bernhoeft-react-app'
   tag: '$(Build.BuildId)'
   REACT_APP_API_URL: 'http://localhost:5001/api/v1'  # URL padrão da API
@@ -40,30 +41,33 @@ stages:
         docker --version
       displayName: 'Verificar Docker'
 
-    # Build da imagem Docker do Frontend
-    - task: Docker@2
-      displayName: 'Build Frontend Docker Image'
+    # Login no Azure usando Service Connection AzureRM
+    - task: AzureCLI@2
+      displayName: 'Login no Azure e ACR'
       inputs:
-        command: build
-        dockerfile: 'ReactApp/Dockerfile'
-        buildContext: 'ReactApp'
-        arguments: '--build-arg REACT_APP_API_URL=$(REACT_APP_API_URL)'
-        containerRegistry: '$(dockerRegistryServiceConnection)'
-        repository: '$(frontendImageRepository)'
-        tags: |
-          $(tag)
-          latest
+        azureSubscription: '$(azureSubscription)'
+        scriptType: 'bash'
+        scriptLocation: 'inlineScript'
+        inlineScript: |
+          # Login no Azure Container Registry
+          az acr login --name $(acrName)
+          echo "Login no ACR realizado com sucesso"
+
+    # Build da imagem Docker do Frontend
+    - script: |
+        docker build \
+          --build-arg REACT_APP_API_URL=$(REACT_APP_API_URL) \
+          -f ReactApp/Dockerfile \
+          -t $(containerRegistry)/$(frontendImageRepository):$(tag) \
+          -t $(containerRegistry)/$(frontendImageRepository):latest \
+          ReactApp
+      displayName: 'Build Frontend Docker Image'
 
     # Push da imagem Frontend para Azure Container Registry
-    - task: Docker@2
+    - script: |
+        docker push $(containerRegistry)/$(frontendImageRepository):$(tag)
+        docker push $(containerRegistry)/$(frontendImageRepository):latest
       displayName: 'Push Frontend Docker Image to ACR'
-      inputs:
-        command: push
-        containerRegistry: '$(dockerRegistryServiceConnection)'
-        repository: '$(frontendImageRepository)'
-        tags: |
-          $(tag)
-          latest
 
     # Salvar informações da imagem
     - script: |

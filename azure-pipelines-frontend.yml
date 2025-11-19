@@ -24,7 +24,7 @@ variables:
   acrName: 'unewsistemas'
   frontendImageRepository: 'bernhoeft-react-app'
   tag: '$(Build.BuildId)'
-  REACT_APP_API_URL: 'http://localhost:5001/api/v1'  # URL padrão da API
+  REACT_APP_API_URL: 'https://api-board-avisos.azurewebsites.net/api/v1'  # URL da API em produção
 
 stages:
 - stage: BuildFrontend

@@ -1,7 +1,20 @@
 import * as signalR from '@microsoft/signalr';
 import { Aviso } from '../types/Aviso';
 
-const HUB_URL = process.env.REACT_APP_API_URL?.replace('/api/v1', '/hub/avisos') || 'https://localhost:5001/hub/avisos';
+// Construir URL do hub a partir da URL da API
+// Se REACT_APP_API_URL contém /api/v1, substitui por /hub/avisos
+// Caso contrário, adiciona /hub/avisos
+const getHubUrl = () => {
+  const apiUrl = process.env.REACT_APP_API_URL || 'https://localhost:5001/api/v1';
+  if (apiUrl.includes('/api/v1')) {
+    return apiUrl.replace('/api/v1', '/hub/avisos');
+  }
+  // Remove barra final se existir e adiciona /hub/avisos
+  const baseUrl = apiUrl.replace(/\/$/, '');
+  return `${baseUrl}/hub/avisos`;
+};
+
+const HUB_URL = getHubUrl();
 
 export interface SignalRCallbacks {
   onAvisoCriado?: (aviso: Aviso) => void;

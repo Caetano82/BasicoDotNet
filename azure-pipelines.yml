@@ -1,29 +1,71 @@
-# Docker
-# Build a Docker image
+# Docker Pipeline - React App
+# Build a Docker image for React Application
 # https://docs.microsoft.com/azure/devops/pipelines/languages/docker
 
 trigger:
-- master
+  branches:
+    include:
+      - master
+      - main
+  paths:
+    include:
+      - ReactApp/*
+      - azure-pipelines.yml
 
 resources:
-- repo: self
+  - repo: self
 
 variables:
+  dockerRegistryServiceConnection: ''  # Configure no Azure DevOps se quiser fazer push
+  imageRepository: 'bernhoeft-react-app'
   tag: '$(Build.BuildId)'
+  REACT_APP_API_URL: 'http://localhost:5001/api/v1'  # URL padrão da API
 
 stages:
 - stage: Build
-  displayName: Build image
+  displayName: Build and Test
   jobs:
   - job: Build
-    displayName: Build
+    displayName: Build Docker Image
     pool:
       vmImage: ubuntu-latest
     steps:
+    # Verificar se Docker está instalado
+    - script: |
+        echo "Docker version:"
+        docker --version
+        echo "Docker Compose version:"
+        docker-compose --version || echo "Docker Compose não instalado"
+      displayName: 'Verificar Docker'
+
+    # Build da imagem Docker
     - task: Docker@2
-      displayName: Build an image
+      displayName: 'Build Docker Image'
       inputs:
         command: build
-        dockerfile: 'Dockerfile'
+        dockerfile: 'ReactApp/Dockerfile'
+        buildContext: 'ReactApp'
+        arguments: '--build-arg REACT_APP_API_URL=$(REACT_APP_API_URL)'
         tags: |
-          $(tag)
+          $(imageRepository):$(tag)
+          $(imageRepository):latest
+
+    # Opcional: Push para Container Registry (descomente e configure se necessário)
+    # - task: Docker@2
+    #   displayName: 'Push Docker Image to Registry'
+    #   inputs:
+    #     command: push
+    #     repository: '$(imageRepository)'
+    #     containerRegistry: '$(dockerRegistryServiceConnection)'
+    #     tags: |
+    #       $(imageRepository):$(tag)
+    #       $(imageRepository):latest
+
+    # Salvar informações da imagem construída
+    - script: |
+        echo "##vso[task.setvariable variable=ImageTag]$(imageRepository):$(tag)"
+        echo "##vso[task.setvariable variable=ImageName]$(imageRepository)"
+        echo "Imagem construída: $(imageRepository):$(tag)"
+        echo "Tag: $(tag)"
+        docker images | grep $(imageRepository) || echo "Imagem não encontrada"
+      displayName: 'Salvar informações da imagem'

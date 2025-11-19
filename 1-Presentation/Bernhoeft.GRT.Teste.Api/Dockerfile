@@ -12,19 +12,22 @@ COPY ["4-Infra/Bernhoeft.GRT.Teste.Infra.Persistence.InMemory/Bernhoeft.GRT.Test
 COPY ["Libs/", "Libs/"]
 
 # Restaurar dependências NuGet (apenas projetos necessários, sem a solução que inclui testes)
+# Isso cria as camadas de cache para os pacotes NuGet
 RUN dotnet restore "1-Presentation/Bernhoeft.GRT.Teste.Api/Bernhoeft.GRT.Teste.Api.csproj"
 
 # Copiar todo o código fonte
 COPY . .
 
+# Restaurar novamente após copiar todo o código (necessário para garantir que tudo esteja sincronizado)
 # Build da aplicação
 WORKDIR "/src/1-Presentation/Bernhoeft.GRT.Teste.Api"
-RUN dotnet build "Bernhoeft.GRT.Teste.Api.csproj" -c Release --no-restore -o /app/build
+RUN dotnet restore "Bernhoeft.GRT.Teste.Api.csproj" && \
+    dotnet build "Bernhoeft.GRT.Teste.Api.csproj" -c Release -o /app/build
 
 # Stage 2: Publish
 FROM build AS publish
 WORKDIR "/src/1-Presentation/Bernhoeft.GRT.Teste.Api"
-RUN dotnet publish "Bernhoeft.GRT.Teste.Api.csproj" -c Release --no-restore -o /app/publish /p:UseAppHost=false
+RUN dotnet publish "Bernhoeft.GRT.Teste.Api.csproj" -c Release -o /app/publish /p:UseAppHost=false
 
 # Stage 3: Runtime
 FROM mcr.microsoft.com/dotnet/aspnet:9.0 AS final

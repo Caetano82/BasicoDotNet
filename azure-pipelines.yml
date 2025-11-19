@@ -1,5 +1,5 @@
-# Docker Pipeline - React App
-# Build a Docker image for React Application
+# Docker Pipeline - Backend API e Frontend React
+# Build Docker images for .NET API and React Application
 # https://docs.microsoft.com/azure/devops/pipelines/languages/docker
 
 trigger:
@@ -10,62 +10,111 @@ trigger:
   paths:
     include:
       - ReactApp/*
+      - 1-Presentation/Bernhoeft.GRT.Teste.Api/*
+      - 2-Application/*
+      - 3-Domain/*
+      - 4-Infra/*
       - azure-pipelines.yml
 
 resources:
   - repo: self
 
 variables:
-  dockerRegistryServiceConnection: ''  # Configure no Azure DevOps se quiser fazer push
-  imageRepository: 'bernhoeft-react-app'
+  dockerRegistryServiceConnection: 'unewsistemas-acr-service-connection'  # Nome do Service Connection no Azure DevOps
+  containerRegistry: 'unewsistemas.azurecr.io'
+  backendImageRepository: 'unewsistemas.azurecr.io/bernhoeft-api'
+  frontendImageRepository: 'unewsistemas.azurecr.io/bernhoeft-react-app'
   tag: '$(Build.BuildId)'
   REACT_APP_API_URL: 'http://localhost:5001/api/v1'  # URL padrão da API
 
 stages:
-- stage: Build
-  displayName: Build and Test
+- stage: BuildBackend
+  displayName: Build Backend API
   jobs:
-  - job: Build
-    displayName: Build Docker Image
+  - job: BuildBackend
+    displayName: Build Backend Docker Image
     pool:
       vmImage: ubuntu-latest
     steps:
-    # Verificar se Docker está instalado
+    # Verificar Docker
     - script: |
         echo "Docker version:"
         docker --version
-        echo "Docker Compose version:"
-        docker-compose --version || echo "Docker Compose não instalado"
       displayName: 'Verificar Docker'
 
-    # Build da imagem Docker
+    # Build da imagem Docker do Backend
     - task: Docker@2
-      displayName: 'Build Docker Image'
+      displayName: 'Build Backend Docker Image'
+      inputs:
+        command: build
+        dockerfile: '1-Presentation/Bernhoeft.GRT.Teste.Api/Dockerfile'
+        buildContext: '.'
+        containerRegistry: '$(dockerRegistryServiceConnection)'
+        repository: 'bernhoeft-api'
+        tags: |
+          $(tag)
+          latest
+
+    # Push da imagem Backend para Azure Container Registry
+    - task: Docker@2
+      displayName: 'Push Backend Docker Image to ACR'
+      inputs:
+        command: push
+        containerRegistry: '$(dockerRegistryServiceConnection)'
+        repository: 'bernhoeft-api'
+        tags: |
+          $(tag)
+          latest
+
+    # Salvar informações da imagem
+    - script: |
+        echo "##vso[task.setvariable variable=BackendImageTag]$(backendImageRepository):$(tag)"
+        echo "Imagem Backend construída e enviada: $(backendImageRepository):$(tag)"
+        echo "Registry: $(containerRegistry)"
+      displayName: 'Salvar informações Backend'
+
+- stage: BuildFrontend
+  displayName: Build Frontend React App
+  jobs:
+  - job: BuildFrontend
+    displayName: Build Frontend Docker Image
+    pool:
+      vmImage: ubuntu-latest
+    steps:
+    # Verificar Docker
+    - script: |
+        echo "Docker version:"
+        docker --version
+      displayName: 'Verificar Docker'
+
+    # Build da imagem Docker do Frontend
+    - task: Docker@2
+      displayName: 'Build Frontend Docker Image'
       inputs:
         command: build
         dockerfile: 'ReactApp/Dockerfile'
         buildContext: 'ReactApp'
         arguments: '--build-arg REACT_APP_API_URL=$(REACT_APP_API_URL)'
+        containerRegistry: '$(dockerRegistryServiceConnection)'
+        repository: 'bernhoeft-react-app'
         tags: |
-          $(imageRepository):$(tag)
-          $(imageRepository):latest
+          $(tag)
+          latest
 
-    # Opcional: Push para Container Registry (descomente e configure se necessário)
-    # - task: Docker@2
-    #   displayName: 'Push Docker Image to Registry'
-    #   inputs:
-    #     command: push
-    #     repository: '$(imageRepository)'
-    #     containerRegistry: '$(dockerRegistryServiceConnection)'
-    #     tags: |
-    #       $(imageRepository):$(tag)
-    #       $(imageRepository):latest
+    # Push da imagem Frontend para Azure Container Registry
+    - task: Docker@2
+      displayName: 'Push Frontend Docker Image to ACR'
+      inputs:
+        command: push
+        containerRegistry: '$(dockerRegistryServiceConnection)'
+        repository: 'bernhoeft-react-app'
+        tags: |
+          $(tag)
+          latest
 
-    # Salvar informações da imagem construída
+    # Salvar informações da imagem
     - script: |
-        echo "##vso[task.setvariable variable=ImageTag]$(imageRepository):$(tag)"
-        echo "##vso[task.setvariable variable=ImageName]$(imageRepository)"
-        echo "Imagem construída: $(imageRepository):$(tag)"
-        echo "Tag: $(tag)"
-        docker images | grep $(imageRepository) || echo "Imagem não encontrada"
-      displayName: 'Salvar informações da imagem'
+        echo "##vso[task.setvariable variable=FrontendImageTag]$(frontendImageRepository):$(tag)"
+        echo "Imagem Frontend construída e enviada: $(frontendImageRepository):$(tag)"
+        echo "Registry: $(containerRegistry)"
+      displayName: 'Salvar informações Frontend'

@@ -1,0 +1,73 @@
+# Docker Pipeline - Frontend React App
+# Build and push Docker image for React Application to Azure Container Registry
+# https://docs.microsoft.com/azure/devops/pipelines/languages/docker
+
+trigger:
+  branches:
+    include:
+      - master
+      - main
+  paths:
+    include:
+      - ReactApp/*
+      - azure-pipelines-frontend.yml
+
+resources:
+  - repo: self
+
+variables:
+  dockerRegistryServiceConnection: 'unewsistemas-acr-service-connection'  # Configure este Service Connection no Azure DevOps
+  containerRegistry: 'unewsistemas.azurecr.io'
+  frontendImageRepository: 'bernhoeft-react-app'
+  tag: '$(Build.BuildId)'
+  REACT_APP_API_URL: 'http://localhost:5001/api/v1'  # URL padrão da API
+
+stages:
+- stage: BuildFrontend
+  displayName: Build and Push Frontend React App
+  jobs:
+  - job: BuildFrontend
+    displayName: Build Frontend Docker Image
+    pool:
+      vmImage: ubuntu-latest
+    steps:
+    # Verificar Docker
+    - script: |
+        echo "Docker version:"
+        docker --version
+      displayName: 'Verificar Docker'
+
+    # Build da imagem Docker do Frontend
+    - task: Docker@2
+      displayName: 'Build Frontend Docker Image'
+      inputs:
+        command: build
+        dockerfile: 'ReactApp/Dockerfile'
+        buildContext: 'ReactApp'
+        arguments: '--build-arg REACT_APP_API_URL=$(REACT_APP_API_URL)'
+        containerRegistry: '$(dockerRegistryServiceConnection)'
+        repository: '$(frontendImageRepository)'
+        tags: |
+          $(tag)
+          latest
+
+    # Push da imagem Frontend para Azure Container Registry
+    - task: Docker@2
+      displayName: 'Push Frontend Docker Image to ACR'
+      inputs:
+        command: push
+        containerRegistry: '$(dockerRegistryServiceConnection)'
+        repository: '$(frontendImageRepository)'
+        tags: |
+          $(tag)
+          latest
+
+    # Salvar informações da imagem
+    - script: |
+        echo "##vso[task.setvariable variable=FrontendImageTag]$(containerRegistry)/$(frontendImageRepository):$(tag)"
+        echo "Imagem Frontend construída e enviada: $(containerRegistry)/$(frontendImageRepository):$(tag)"
+        echo "Registry: $(containerRegistry)"
+        echo "Repository: $(frontendImageRepository)"
+        echo "Tag: $(tag)"
+      displayName: 'Salvar informações Frontend'
+

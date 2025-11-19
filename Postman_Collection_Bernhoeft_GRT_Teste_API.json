@@ -1,0 +1,318 @@
+{
+	"info": {
+		"_postman_id": "bernhoeft-grt-teste-api",
+		"name": "Bernhoeft GRT Teste API - Avisos",
+		"description": "Collection para testar a API de Avisos do projeto Bernhoeft GRT Teste",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Avisos",
+			"item": [
+				{
+					"name": "GET - Listar Avisos (Paginado)",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/v1/avisos?page=1&pageSize=10",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"avisos"
+							],
+							"query": [
+								{
+									"key": "page",
+									"value": "1",
+									"description": "Número da página (padrão: 1)"
+								},
+								{
+									"key": "pageSize",
+									"value": "10",
+									"description": "Tamanho da página (padrão: 10, máximo: 100)"
+								}
+							]
+						},
+						"description": "Retorna todos os avisos cadastrados com paginação"
+					},
+					"response": []
+				},
+				{
+					"name": "GET - Obter Aviso por ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/v1/avisos/:id",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"avisos",
+								":id"
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": "1",
+									"description": "ID do aviso"
+								}
+							]
+						},
+						"description": "Retorna um aviso específico com base no ID"
+					},
+					"response": []
+				},
+				{
+					"name": "POST - Criar Aviso",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"titulo\": \"Novo Aviso\",\n    \"mensagem\": \"Esta é uma mensagem de teste para o novo aviso\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/avisos",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"avisos"
+							]
+						},
+						"description": "Cria um novo aviso"
+					},
+					"response": []
+				},
+				{
+					"name": "PUT - Atualizar Aviso",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"mensagem\": \"Mensagem atualizada do aviso\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/avisos/:id",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"avisos",
+								":id"
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": "1",
+									"description": "ID do aviso a ser atualizado"
+								}
+							]
+						},
+						"description": "Atualiza a mensagem de um aviso existente (apenas a mensagem pode ser editada)"
+					},
+					"response": []
+				},
+				{
+					"name": "DELETE - Excluir Aviso",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/v1/avisos/:id",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"avisos",
+								":id"
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": "1",
+									"description": "ID do aviso a ser excluído (soft delete)"
+								}
+							]
+						},
+						"description": "Exclui um aviso (soft delete - marca como deletado, mas não remove do banco)"
+					},
+					"response": []
+				}
+			],
+			"description": "Endpoints para gerenciamento de Avisos"
+		},
+		{
+			"name": "Testes de Validação",
+			"item": [
+				{
+					"name": "POST - Criar Aviso (Título Vazio - Erro)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"titulo\": \"\",\n    \"mensagem\": \"Mensagem válida\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/avisos",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"avisos"
+							]
+						},
+						"description": "Testa validação - título vazio deve retornar erro"
+					},
+					"response": []
+				},
+				{
+					"name": "POST - Criar Aviso (Mensagem Vazia - Erro)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"titulo\": \"Título válido\",\n    \"mensagem\": \"\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/avisos",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"avisos"
+							]
+						},
+						"description": "Testa validação - mensagem vazia deve retornar erro"
+					},
+					"response": []
+				},
+				{
+					"name": "GET - Obter Aviso (ID Inválido - Erro)",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/v1/avisos/0",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"avisos",
+								"0"
+							]
+						},
+						"description": "Testa validação - ID inválido (0) deve retornar BadRequest"
+					},
+					"response": []
+				},
+				{
+					"name": "PUT - Atualizar Aviso (Mensagem Vazia - Erro)",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"mensagem\": \"\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/avisos/1",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"avisos",
+								"1"
+							]
+						},
+						"description": "Testa validação - mensagem vazia deve retornar erro"
+					},
+					"response": []
+				}
+			],
+			"description": "Testes de validação e casos de erro"
+		}
+	],
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "https://localhost:5001",
+			"type": "string"
+		}
+	]
+}
+

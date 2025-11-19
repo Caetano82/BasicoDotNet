@@ -1,16 +1,23 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
+    <LangVersion>latest</LangVersion>
     <TargetFramework>net9.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Build\**\*.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Bogus" Version="35.6.2" />
     <PackageReference Include="FluentAssertions" Version="8.1.1" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" Version="9.0.2" />
+    <PackageReference Include="Microsoft.AspNetCore.SignalR" Version="1.2.0" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" Version="9.0.2" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.13.0" />
+    <PackageReference Include="Moq" Version="4.20.72" />
     <PackageReference Include="SeedEasy" Version="2.0.3" />
     <PackageReference Include="Soenneker.Utils.AutoBogus" Version="3.0.689" />
     <PackageReference Include="xunit" Version="2.9.3" />
@@ -19,10 +26,28 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
+    <PackageReference Include="coverlet.collector" Version="6.0.2">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\..\1-Presentation\Bernhoeft.GRT.Teste.Api\Bernhoeft.GRT.Teste.Api.csproj" />
+    <ProjectReference Include="..\..\2-Application\Bernhoeft.GRT.Teste.Application\Bernhoeft.GRT.Teste.Application.csproj" />
+    <ProjectReference Include="..\..\3-Domain\Bernhoeft.GRT.Teste.Domain\Bernhoeft.GRT.Teste.Domain.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="Bernhoeft.GRT.Core.Rest">
+      <HintPath>..\..\Libs\Bernhoeft.GRT.Core.Rest.dll</HintPath>
+    </Reference>
+    <Reference Include="Bernhoeft.GRT.Core">
+      <HintPath>..\..\Libs\Bernhoeft.GRT.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="Bernhoeft.GRT.Core.EntityFramework">
+      <HintPath>..\..\Libs\Bernhoeft.GRT.Core.EntityFramework.dll</HintPath>
+    </Reference>
   </ItemGroup>
 
 </Project>

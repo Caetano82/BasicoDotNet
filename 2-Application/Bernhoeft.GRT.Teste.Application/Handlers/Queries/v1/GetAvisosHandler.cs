@@ -11,7 +11,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace Bernhoeft.GRT.Teste.Application.Handlers.Queries.v1
 {
-    public class GetAvisosHandler : IRequestHandler<GetAvisosRequest, IOperationResult<IEnumerable<GetAvisosResponse>>>
+    public class GetAvisosHandler : IRequestHandler<GetAvisosRequest, IOperationResult<PagedResult<GetAvisosResponse>>>
     {
         private readonly IServiceProvider _serviceProvider;
 
@@ -20,13 +20,26 @@ namespace Bernhoeft.GRT.Teste.Application.Handlers.Queries.v1
 
         public GetAvisosHandler(IServiceProvider serviceProvider) => _serviceProvider = serviceProvider;
 
-        public async Task<IOperationResult<IEnumerable<GetAvisosResponse>>> Handle(GetAvisosRequest request, CancellationToken cancellationToken)
+        public async Task<IOperationResult<PagedResult<GetAvisosResponse>>> Handle(GetAvisosRequest request, CancellationToken cancellationToken)
         {
-            var result = await _avisoRepository.ObterTodosAvisosAsync(TrackingBehavior.NoTracking);
-            if (!result.HaveAny())
-                return OperationResult<IEnumerable<GetAvisosResponse>>.ReturnNoContent();
+            var (items, totalCount) = await _avisoRepository.ObterAvisosPaginadosAsync(
+                request.Page, 
+                request.PageSize, 
+                TrackingBehavior.NoTracking, 
+                cancellationToken);
 
-            return OperationResult<IEnumerable<GetAvisosResponse>>.ReturnOk(result.Select(x => (GetAvisosResponse)x));
+            if (totalCount == 0)
+                return OperationResult<PagedResult<GetAvisosResponse>>.ReturnNoContent();
+
+            var pagedResult = new PagedResult<GetAvisosResponse>
+            {
+                Data = items.Select(x => (GetAvisosResponse)x),
+                Page = request.Page,
+                PageSize = request.PageSize,
+                TotalCount = totalCount
+            };
+
+            return OperationResult<PagedResult<GetAvisosResponse>>.ReturnOk(pagedResult);
         }
     }
 }

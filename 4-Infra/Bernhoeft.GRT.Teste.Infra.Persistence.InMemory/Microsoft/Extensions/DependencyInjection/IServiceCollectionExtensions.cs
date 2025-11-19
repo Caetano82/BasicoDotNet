@@ -23,19 +23,22 @@ namespace Microsoft.Extensions.DependencyInjection
                            {
                                dbSet.Add(new()
                                {
-                                   Titulo = "Titulo 1",
-                                   Mensagem = "Mensagem 1",
+                                   Titulo = "Titulo1",
+                                   Mensagem = "Mensagem1",
                                });
                                dbSet.Add(new()
                                {
-                                   Titulo = "Titulo 2",
-                                   Mensagem = "Mensagem 2",
+                                   Titulo = "Titulo2",
+                                   Mensagem = "Mensagem2",
                                });
                                await context.SaveChangesAsync(cancellationToken);
                            }
                        });
             });
             @this.RegisterServicesFromAssemblyContaining<AvisoMap>(); // Register Repositories with InjectServiceAttribute.
+
+            // Bridge: expõe DbContext a partir do IContext registrado pela Infra
+            @this.AddScoped<DbContext>(sp => (DbContext)sp.GetRequiredService<IContext>());
 
             // Create DataBase in Memory.
             using var serviceProvider = @this.BuildServiceProvider();

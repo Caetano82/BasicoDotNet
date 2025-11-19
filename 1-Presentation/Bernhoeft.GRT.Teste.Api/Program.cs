@@ -2,6 +2,7 @@
 using System.Globalization;
 using System.Text.Json.Serialization;
 using Bernhoeft.GRT.Core.Extensions;
+using Bernhoeft.GRT.Teste.Api.Hubs;
 using Bernhoeft.GRT.Teste.Api.Swashbuckle;
 using Bernhoeft.GRT.Teste.Application.Requests.Queries.v1;
 using FluentValidation;
@@ -9,7 +10,9 @@ using FluentValidation.AspNetCore;
 using MicroElements.Swashbuckle.FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.HttpOverrides;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Options;
+using Microsoft.EntityFrameworkCore;
 using Swashbuckle.AspNetCore.SwaggerGen;
 using Unchase.Swashbuckle.AspNetCore.Extensions.Extensions;
 
@@ -28,6 +31,9 @@ builder.WebHost.UseKestrel(options =>
     if (int.TryParse(Environment.GetEnvironmentVariable("PORT"), out var port))
         options.ListenAnyIP(port);
 });
+
+// Adicionando SignalR primeiro (antes dos controllers para garantir que IHubContext esteja disponível)
+builder.Services.AddSignalR();
 
 // Adicionando os serviços no container.
 builder.Services.AddMemoryCache()
@@ -135,6 +141,7 @@ app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
+app.MapHub<AvisosHub>("/hub/avisos");
 await app.RunAsync();
 
 public partial class Program

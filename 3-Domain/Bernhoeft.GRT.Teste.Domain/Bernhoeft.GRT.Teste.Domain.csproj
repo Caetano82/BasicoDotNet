@@ -9,6 +9,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Build\**\*.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Reference Include="Bernhoeft.GRT.Core">
       <HintPath>..\..\Libs\Bernhoeft.GRT.Core.dll</HintPath>
     </Reference>
